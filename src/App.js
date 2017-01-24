@@ -76,11 +76,11 @@ class App extends Component {
     this.setCache(nextState);
   }
 
-  /**
+  /*
    * Creates the cache based on the current items state and sets it as a
    * property to the class instance.
    * @param  {Object} nextState The state object
-   */
+*/
   setCache = (nextState = this.state) => {
     this.indexToIdMap = createCacheMap(nextState.items);
     this.cache = new idCellSizeCache({
@@ -101,11 +101,11 @@ class App extends Component {
   /**
    * Calls resetMeasurements() on the cellMeasurer, which should bust the cache.
    */
-  bustCache = () => {
-    if (this.cellMeasurer) {
-      console.log('cellMeasurer exists', this.cellMeasurer);
-      console.log('Time to call resetMeasurements()');
-      this.cellMeasurer.resetMeasurements();
+  bustCache = (index) => {
+
+
+    if (this.list) {
+      this.list.recomputeRowHeights(index);
     }
   }
 
@@ -116,7 +116,6 @@ class App extends Component {
    *                    (receives event parameter, but we ignore it for now)
    */
   removeItem = (index) => () => {
-    this.bustCache();
     this.setState(prevState => ({
       ...prevState,
       items: [
@@ -124,6 +123,7 @@ class App extends Component {
         ...prevState.items.slice(index + 1, prevState.items.length),
       ],
     }));
+    this.bustCache(index);
   }
 
   render() {
@@ -136,7 +136,6 @@ class App extends Component {
       <div className="App">
         <div style={{ margin: '0 auto', width, }}>
           <CellMeasurer
-            ref={(cellMeasurer) => this.cellMeasurer = cellMeasurer}
             cellSizeCache={this.cache}
             width={width}
             rowCount={length}
@@ -145,6 +144,7 @@ class App extends Component {
           >
             { ({ getRowHeight }) => (
               <List
+                ref={(list) => this.list = list}
                 width={width}
                 height={800}
                 rowCount={length}
